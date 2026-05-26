@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://petanque.app/schema/scene-state.schema.json",
+  "title": "SceneState",
+  "description": "Состояние сцены, которое iOS- и Android-приложения публикуют для UI и для записи в логи. Контракт стабилен между платформами.",
+  "type": "object",
+  "required": ["balls", "quality", "frozen", "timestamp"],
+  "additionalProperties": false,
+  "properties": {
+    "cochonnet": {
+      "anyOf": [{ "$ref": "#/$defs/BallMeasurement" }, { "type": "null" }]
+    },
+    "balls": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/BallMeasurement" }
+    },
+    "quality": { "$ref": "#/$defs/Quality" },
+    "hint": { "type": ["string", "null"] },
+    "frozen": { "type": "boolean" },
+    "timestamp": { "type": "number", "description": "Unix-секунды." }
+  },
+  "$defs": {
+    "DetectionClass": { "type": "string", "enum": ["boule", "cochonnet"] },
+    "Detection": {
+      "type": "object",
+      "required": ["id", "cls", "bbox", "score"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "cls": { "$ref": "#/$defs/DetectionClass" },
+        "bbox": { "$ref": "#/$defs/BBox" },
+        "score": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "BBox": {
+      "type": "object",
+      "required": ["x", "y", "w", "h"],
+      "additionalProperties": false,
+      "description": "Координаты в нормированном пространстве кадра [0..1].",
+      "properties": {
+        "x": { "type": "number" },
+        "y": { "type": "number" },
+        "w": { "type": "number" },
+        "h": { "type": "number" }
+      }
+    },
+    "Position3D": {
+      "type": "object",
+      "required": ["x", "y", "z"],
+      "additionalProperties": false,
+      "description": "Метры в координатах AR-сессии.",
+      "properties": {
+        "x": { "type": "number" },
+        "y": { "type": "number" },
+        "z": { "type": "number" }
+      }
+    },
+    "Distance": {
+      "type": "object",
+      "required": ["meters", "confidence"],
+      "additionalProperties": false,
+      "properties": {
+        "meters": { "type": "number", "minimum": 0 },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "Method": { "type": "string", "enum": ["ar", "geometry", "fusion", "lidar"] },
+    "BallMeasurement": {
+      "type": "object",
+      "required": ["id", "detection"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "detection": { "$ref": "#/$defs/Detection" },
+        "position": { "anyOf": [{ "$ref": "#/$defs/Position3D" }, { "type": "null" }] },
+        "distanceToCochonnet": { "anyOf": [{ "$ref": "#/$defs/Distance" }, { "type": "null" }] },
+        "rank": { "type": ["integer", "null"], "minimum": 1 },
+        "method": { "anyOf": [{ "$ref": "#/$defs/Method" }, { "type": "null" }] }
+      }
+    },
+    "Quality": {
+      "type": "object",
+      "required": ["score", "reasons"],
+      "additionalProperties": false,
+      "properties": {
+        "score": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "reasons": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}
