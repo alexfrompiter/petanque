@@ -1,5 +1,7 @@
 # Petanque distance — мобильное приложение
 
+[![CI](https://github.com/alexfrompiter/petanque/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alexfrompiter/petanque/actions/workflows/ci.yml)
+
 Мобильное приложение для iOS и Android, которое с камеры телефона в реальном
 времени распознаёт шары петанка и кошонет, считает расстояния от кошонета до
 шаров и подсказывает, какой шар ближе.
@@ -45,6 +47,9 @@ docs/        — вся проектная документация.
   тесты, схема `SceneState`. См. [ios/README.md](ios/README.md) для запуска.
 - ✅ **P0 (Android)** — Gradle-проект с Compose + CameraX preview, домен на
   kotlinx.serialization, JVM-тесты. См. [android/README.md](android/README.md).
+- ✅ **CI** — GitHub Actions: `android` (Ubuntu + JDK 17 + Gradle) и `ios`
+  (macOS + Xcode 16 + XcodeGen) собирают проект и гоняют тесты на каждый PR.
+  Конфиг: [.github/workflows/ci.yml](.github/workflows/ci.yml).
 - ⏳ **P1** — детекция шаров через CoreML/TFLite.
 
 См. полный план в [docs/07-roadmap.md](docs/07-roadmap.md).
