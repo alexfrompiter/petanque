@@ -1,0 +1,64 @@
+name: Petanque
+options:
+  bundleIdPrefix: app.petanque
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+  groupSortPosition: top
+  developmentLanguage: ru
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    SWIFT_STRICT_CONCURRENCY: complete
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+
+targets:
+
+  Petanque:
+    type: application
+    platform: iOS
+    sources:
+      - path: Petanque
+        excludes:
+          - "**/*.md"
+          - "Info.plist"
+    resources:
+      - path: Petanque/Resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.petanque.Petanque
+        INFOPLIST_FILE: Petanque/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        TARGETED_DEVICE_FAMILY: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+
+  PetanqueTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - PetanqueTests
+    dependencies:
+      - target: Petanque
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.petanque.Petanque.Tests
+        GENERATE_INFOPLIST_FILE: YES
+
+schemes:
+  Petanque:
+    build:
+      targets:
+        Petanque: all
+        PetanqueTests: [test]
+    test:
+      targets:
+        - PetanqueTests
+    run:
+      config: Debug
+    archive:
+      config: Release

@@ -29,15 +29,21 @@
   номера, дистанции, линии, окружности), индикатор качества и подсказки по
   позиционированию.
 
-## Структура репозитория (целевая)
+## Структура репозитория
 
 ```
-ios/         — Xcode-проект (Swift + SwiftUI + ARKit + CoreML)
-android/     — Gradle-проект (Kotlin + Compose + ARCore + TFLite)
-ml/          — обучение моделей и экспорт
-shared/      — JSON-схемы и калибровочные сцены
-docs/        — вся проектная документация
+ios/         — Xcode-проект (Swift + SwiftUI + ARKit + CoreML).  ← скелет P0 готов
+android/     — Gradle-проект (Kotlin + Compose + ARCore + TFLite). TODO
+ml/          — обучение моделей и экспорт. TODO
+shared/      — JSON-схемы и калибровочные сцены.
+docs/        — вся проектная документация.
 ```
 
-На текущем шаге в репо только `docs/` — собственно проекты заводим в фазе P0
-(см. roadmap).
+## Статус
+
+- ✅ **P0 (iOS)** — скелет приложения, AVFoundation preview, доменные модели,
+  тесты, схема `SceneState`. См. [ios/README.md](ios/README.md) для запуска.
+- ⏳ **P0 (Android)** — на очереди.
+- ⏳ **P1** — детекция шаров через CoreML/TFLite.
+
+См. полный план в [docs/07-roadmap.md](docs/07-roadmap.md).
