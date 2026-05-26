@@ -32,8 +32,8 @@
 ## Структура репозитория
 
 ```
-ios/         — Xcode-проект (Swift + SwiftUI + ARKit + CoreML).  ← скелет P0 готов
-android/     — Gradle-проект (Kotlin + Compose + ARCore + TFLite). TODO
+ios/         — Xcode-проект (Swift + SwiftUI + ARKit + CoreML).         ← P0 готов
+android/     — Gradle-проект (Kotlin + Compose + ARCore + TFLite).      ← P0 готов
 ml/          — обучение моделей и экспорт. TODO
 shared/      — JSON-схемы и калибровочные сцены.
 docs/        — вся проектная документация.
@@ -43,7 +43,8 @@ docs/        — вся проектная документация.
 
 - ✅ **P0 (iOS)** — скелет приложения, AVFoundation preview, доменные модели,
   тесты, схема `SceneState`. См. [ios/README.md](ios/README.md) для запуска.
-- ⏳ **P0 (Android)** — на очереди.
+- ✅ **P0 (Android)** — Gradle-проект с Compose + CameraX preview, домен на
+  kotlinx.serialization, JVM-тесты. См. [android/README.md](android/README.md).
 - ⏳ **P1** — детекция шаров через CoreML/TFLite.
 
 См. полный план в [docs/07-roadmap.md](docs/07-roadmap.md).
