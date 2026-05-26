@@ -103,13 +103,39 @@ jobs:
           restore-keys: |
             ios-deriveddata-
 
+      # Имя симулятора в каждой версии Xcode своё (iPhone 15/16/17…), поэтому
+      # ищем первый доступный iPhone-симулятор по UDID — переживёт любой апдейт
+      # раннеров.
+      - name: Pick iOS simulator
+        id: sim
+        run: |
+          UDID=$(xcrun simctl list devices available --json | python3 -c '
+          import json, sys
+          data = json.load(sys.stdin)
+          for runtime, devices in data["devices"].items():
+              if "iOS" not in runtime:
+                  continue
+              for d in devices:
+                  if d.get("isAvailable") and d["name"].startswith("iPhone"):
+                      print(d["udid"])
+                      sys.exit(0)
+          sys.exit(1)
+          ')
+          if [ -z "$UDID" ]; then
+            echo "::error::No available iPhone simulator found"
+            xcrun simctl list devices available
+            exit 1
+          fi
+          echo "Using simulator UDID: $UDID"
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+
       - name: Run unit tests (iOS Simulator)
         run: |
           set -o pipefail
           xcodebuild test \
             -project Petanque.xcodeproj \
             -scheme Petanque \
-            -destination 'platform=iOS Simulator,name=iPhone 15,OS=latest' \
+            -destination "platform=iOS Simulator,id=${{ steps.sim.outputs.udid }}" \
             -configuration Debug \
             -resultBundlePath build/PetanqueTests.xcresult \
             CODE_SIGNING_ALLOWED=NO
