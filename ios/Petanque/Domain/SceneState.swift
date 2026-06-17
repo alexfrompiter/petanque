@@ -9,10 +9,32 @@ enum DetectionClass: String, Codable, Hashable {
 
 /// Один объект, найденный детектором в кадре.
 struct Detection: Codable, Hashable, Identifiable {
-    let id: String          // стабильный ID от трекера
+    let id: String
     let cls: DetectionClass
-    let bbox: CGRect        // в координатах исходного кадра
-    let score: Float        // confidence детектора
+    let bbox: CGRect
+    let score: Float
+    let rawX1: Double?
+    let rawY1: Double?
+    let rawX2: Double?
+    let rawY2: Double?
+    let rawS0: Double?
+    let rawS1: Double?
+
+    init(id: String, cls: DetectionClass, bbox: CGRect, score: Float,
+         rawX1: Double? = nil, rawY1: Double? = nil,
+         rawX2: Double? = nil, rawY2: Double? = nil,
+         rawS0: Double? = nil, rawS1: Double? = nil) {
+        self.id = id
+        self.cls = cls
+        self.bbox = bbox
+        self.score = score
+        self.rawX1 = rawX1
+        self.rawY1 = rawY1
+        self.rawX2 = rawX2
+        self.rawY2 = rawY2
+        self.rawS0 = rawS0
+        self.rawS1 = rawS1
+    }
 }
 
 /// 3D-позиция в системе координат AR-сессии (метры).

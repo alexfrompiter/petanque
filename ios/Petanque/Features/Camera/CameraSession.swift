@@ -1,11 +1,8 @@
-import AVFoundation
+@preconcurrency import AVFoundation
+import CoreImage
 import Foundation
 
 /// Управляет жизненным циклом AVCaptureSession.
-///
-/// На P0 задача — только показать preview с задней камеры и корректно
-/// обработать разрешения. На P1 сюда добавится delegate-приёмник кадров,
-/// который будет отдавать `CVPixelBuffer` детектору.
 @MainActor
 final class CameraSession: NSObject, ObservableObject {
 
@@ -21,6 +18,13 @@ final class CameraSession: NSObject, ObservableObject {
 
     let session = AVCaptureSession()
     private let sessionQueue = DispatchQueue(label: "app.petanque.camera.session")
+
+    var onFrame: (@MainActor @Sendable (CIImage) -> Void)?
+
+    private let dataOutputQueue = DispatchQueue(
+        label: "app.petanque.camera.data-output",
+        qos: .userInitiated
+    )
 
     func start() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
@@ -52,31 +56,64 @@ final class CameraSession: NSObject, ObservableObject {
     }
 
     private func configureAndStart() {
-        sessionQueue.async { [weak self] in
-            guard let self else { return }
-            self.session.beginConfiguration()
-            self.session.sessionPreset = .hd1920x1080
+        let session = self.session
+        let dataOutputQueue = self.dataOutputQueue
+        sessionQueue.async { [self] in
+            session.beginConfiguration()
+            session.sessionPreset = .hd1920x1080
 
-            self.session.inputs.forEach { self.session.removeInput($0) }
+            session.inputs.forEach { session.removeInput($0) }
+            session.outputs.forEach { session.removeOutput($0) }
 
             guard
                 let device = AVCaptureDevice.default(
                     .builtInWideAngleCamera, for: .video, position: .back
                 ),
                 let input = try? AVCaptureDeviceInput(device: device),
-                self.session.canAddInput(input)
+                session.canAddInput(input)
             else {
-                self.session.commitConfiguration()
+                session.commitConfiguration()
                 Task { @MainActor in
                     self.status = .failed("Не удалось открыть заднюю камеру")
                 }
                 return
             }
-            self.session.addInput(input)
-            self.session.commitConfiguration()
-            self.session.startRunning()
+            session.addInput(input)
+
+            let videoOutput = AVCaptureVideoDataOutput()
+            videoOutput.alwaysDiscardsLateVideoFrames = true
+            videoOutput.videoSettings = [
+                kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA
+            ]
+            videoOutput.setSampleBufferDelegate(self, queue: dataOutputQueue)
+            if session.canAddOutput(videoOutput) {
+                session.addOutput(videoOutput)
+            }
+
+            session.commitConfiguration()
+            session.startRunning()
 
             Task { @MainActor in self.status = .running }
         }
+    }
+
+    nonisolated private func processFrame(_ sampleBuffer: CMSampleBuffer) {
+        guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+        let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+        Task { @MainActor in
+            self.onFrame?(ciImage)
+        }
+    }
+}
+
+// MARK: - AVCaptureVideoDataOutputSampleBufferDelegate
+
+extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate {
+    nonisolated func captureOutput(
+        _ output: AVCaptureOutput,
+        didOutput sampleBuffer: CMSampleBuffer,
+        from connection: AVCaptureConnection
+    ) {
+        processFrame(sampleBuffer)
     }
 }

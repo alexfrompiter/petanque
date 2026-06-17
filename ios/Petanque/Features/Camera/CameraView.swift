@@ -1,18 +1,31 @@
+import AVFoundation
+import CoreImage
 import SwiftUI
 
-/// Полноэкранный SwiftUI-компонент с preview камеры и обработкой состояний
-/// (запрос разрешений, отказ, ошибка).
 struct CameraView: View {
     @StateObject private var camera = CameraSession()
+    let onFrame: (@MainActor @Sendable (CIImage) -> Void)?
+    @Binding var previewLayer: AVCaptureVideoPreviewLayer?
+
+    init(
+        onFrame: (@MainActor @Sendable (CIImage) -> Void)? = nil,
+        previewLayer: Binding<AVCaptureVideoPreviewLayer?> = .constant(nil)
+    ) {
+        self.onFrame = onFrame
+        _previewLayer = previewLayer
+    }
 
     var body: some View {
         ZStack {
-            CameraPreviewView(session: camera.session)
+            CameraPreviewView(session: camera.session, previewLayer: $previewLayer)
                 .ignoresSafeArea()
 
             statusOverlay
         }
-        .onAppear { camera.start() }
+        .onAppear {
+            camera.onFrame = onFrame
+            camera.start()
+        }
         .onDisappear { camera.stop() }
     }
 

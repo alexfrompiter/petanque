@@ -60,13 +60,19 @@ venv/
 .envrc
 .ipynb_checkpoints/
 
-# Веса моделей и датасет — большие, хранятся вне репо (LFS или releases)
+# Веса моделей и датасет — большие, хранятся вне репо (LFS or releases)
 ml/data/
 ml/runs/
 ml/models/*.mlpackage
 ml/models/*.tflite
 ml/models/*.pt
 ml/models/*.onnx
+
+# Dataset downloaded from Roboflow
+model/TIPE-petank-2/
+
+# Trained model weights and runs
+model/runs/
 
 # ─── Editors ────────────────────────────────────────────────────
 .idea/

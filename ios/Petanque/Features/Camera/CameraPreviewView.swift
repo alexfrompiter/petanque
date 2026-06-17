@@ -1,15 +1,16 @@
 import AVFoundation
 import SwiftUI
 
-/// UIKit-обёртка над `AVCaptureVideoPreviewLayer` для SwiftUI.
 struct CameraPreviewView: UIViewRepresentable {
     let session: AVCaptureSession
+    @Binding var previewLayer: AVCaptureVideoPreviewLayer?
 
     func makeUIView(context: Context) -> PreviewUIView {
         let view = PreviewUIView()
         view.backgroundColor = .black
         view.previewLayer.session = session
         view.previewLayer.videoGravity = .resizeAspectFill
+        DispatchQueue.main.async { previewLayer = view.previewLayer }
         return view
     }
 
@@ -17,6 +18,7 @@ struct CameraPreviewView: UIViewRepresentable {
         if uiView.previewLayer.session !== session {
             uiView.previewLayer.session = session
         }
+        DispatchQueue.main.async { previewLayer = uiView.previewLayer }
     }
 
     final class PreviewUIView: UIView {
